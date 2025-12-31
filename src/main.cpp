@@ -1,3 +1,6 @@
+// Forked from MartinRusk Sixpack
+// https://github.com/MartinRusk/Sixpack
+
 #include <Arduino.h>
 #include <XPLDevices.h>
 #include <StepperMC.h>
