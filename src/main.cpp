@@ -17,7 +17,12 @@ StepperMC stpBall(18, 19, 20, 21);
 // Input devices
 Encoder encBaro(A14, A15, A13, enc4Pulse);
 Encoder encHeading(50, 51, 52, enc4Pulse);
+Encoder encGyro(A0, A1, A2, enc4Pulse);
 Switch swEnable(A12);
+
+// Instrument lights
+long int beacon;
+const int panel_lt_pin = 8;
 
 Timer tmrIndicate(50);
 Timer tmrMain(1000);
@@ -38,10 +43,13 @@ float airspeed_kts_pilot;
 float vvi_fpm_pilot;
 float altitude_ft_pilot;
 float barometer_setting_in_hg_pilot;
-float heading_electric_deg_mag_pilot;
+float heading_vacuum_deg_mag_pilot;
 float heading_dial_deg_mag_pilot;
 float turn_rate_roll_deg_pilot;
 float slip_deg;
+float dg_drift_vac_deg;
+
+float panel_lt_br;
 
 // running check
 bool xp_running;
@@ -70,6 +78,8 @@ void handleAll()
   // Encoders
   encBaro.handle();
   encHeading.handle();
+  encGyro.handle();
+
   // Switch
   swEnable.handle();
 }
@@ -145,16 +155,22 @@ void setup()
   XP.registerDataRef(F("sim/cockpit2/gauges/indicators/altitude_ft_pilot"), XPL_READ, 50, 1.0, &altitude_ft_pilot);
   XP.registerDataRef(F("sim/cockpit2/gauges/actuators/barometer_setting_in_hg_pilot"), XPL_READ, 50, 0.01, &barometer_setting_in_hg_pilot);
   // gyro
-  XP.registerDataRef(F("sim/cockpit2/gauges/indicators/heading_electric_deg_mag_pilot"), XPL_READ, 50, 0.2, &heading_electric_deg_mag_pilot);
+  XP.registerDataRef(F("sim/cockpit2/gauges/indicators/heading_vacuum_deg_mag_pilot"), XPL_READ, 50, 0.2, &heading_vacuum_deg_mag_pilot);
   XP.registerDataRef(F("sim/cockpit2/autopilot/heading_dial_deg_mag_pilot"), XPL_READ, 50, 0.2, &heading_dial_deg_mag_pilot);
+  XP.registerDataRef(F("sim/cockpit/gyros/dg_drift_vac_deg"), XPL_READ, 50, 0.2, &dg_drift_vac_deg);
   // turn coordinator
   XP.registerDataRef(F("sim/cockpit2/gauges/indicators/turn_rate_roll_deg_pilot"), XPL_READ, 50, 0.2, &turn_rate_roll_deg_pilot);
   XP.registerDataRef(F("sim/cockpit2/gauges/indicators/slip_deg"), XPL_READ, 50, 0.01, &slip_deg);
 
+  // Instrument lights
+  XP.registerDataRef(F("sim/cockpit2/switches/instrument_brightness_ratio"), XPL_READ, 50, 0.01, &panel_lt_br);
+
+  digitalWrite(LED_BUILTIN, LOW);
+
   // register Commands
   encBaro.setCommand(F("sim/instruments/barometer_up"), F("sim/instruments/barometer_down"), F("sim/instruments/barometer_std"));
   encHeading.setCommand(F("sim/autopilot/heading_up"), F("sim/autopilot/heading_down"), F("sim/autopilot/heading_sync"));
-
+  encGyro.setCommand(F("sim/instruments/DG_sync_up"), F("sim/instruments/DG_sync_down"), F("sim/instruments/DG_sync_mag"));
   // speed indicator (310° = 160kt)
   stpSpeed.setFeedConst(185.8);
   stpSpeed.setBacklash(0);
@@ -261,6 +277,7 @@ void setup()
 
   // LED
   pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(panel_lt_pin, OUTPUT);
 }
 
 float act_speed = 0;
@@ -285,13 +302,19 @@ void loop()
       stpAltitude.setPosition(altitude_ft_pilot);
       stpBaro.setPosition(barometer_setting_in_hg_pilot - 29.92);
       stpVario.setPosition(vvi_fpm_pilot);
-      stpGyro.setPosition(heading_electric_deg_mag_pilot);
-      stpHeading.setPosition(heading_dial_deg_mag_pilot - heading_electric_deg_mag_pilot);
+      stpGyro.setPosition(heading_vacuum_deg_mag_pilot);
+      stpHeading.setPosition(heading_dial_deg_mag_pilot - heading_vacuum_deg_mag_pilot);
       stpTurn.setPosition(turn_rate_roll_deg_pilot);
       stpBall.setPosition(slip_deg * 4.0);
       // barometer up/down
       encBaro.processCommand();
       encHeading.processCommand();
+      encGyro.processCommand();
+
+
+      // instrument lights
+      float panel_lt_pwm = panel_lt_br * 255;
+      analogWrite(panel_lt_pin, panel_lt_pwm);
     }
   }
   else // XP NOT running: set all to zero
@@ -307,6 +330,7 @@ void loop()
     stpHeading.setPosition(0);
     stpTurn.setPosition(0);
     stpBall.setPosition(0);
+    analogWrite(panel_lt_pin,0);
 
     // use gyro encoder for zero adjustment, cycle through instruments
     if (encHeading.pressed())
