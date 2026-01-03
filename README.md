@@ -1,6 +1,6 @@
 # Flight Simulation Sixpack for X-Plane
 
-Source code for the use of my Flight Simulator Sixpack Devices with X-Plane.
+Source code for the use of my remixes of Martin Rusks Flight Simulator Sixpack Devices with X-Plane.
 
 All 3D Designs are available on Printables:
 
