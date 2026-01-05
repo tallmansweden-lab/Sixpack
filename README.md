@@ -18,9 +18,11 @@ https://www.printables.com/de/model/338749-airspeed-indicator-for-flight-simulat
 
 https://www.printables.com/de/model/338636-variometer-for-flight-simulation
 
-<img src="https://media.printables.com/media/prints/338636/images/2894370_575147c5-8f59-43df-9d2b-a04d1a30f9d0/thumbs/cover/640x480/png/variometer.webp" 
+<img src="https://media.printables.com/media/prints/338636/images/2894370_575147c5-8f59-43df-9d2b-a04d1a30f9d0/thumbs/cover/640x480/png/variometer.webp" width="240"/>
 
-<iframe src="https://www.printables.com/embed/1533634" width="300" height="340" scrolling="no" frameborder="0"></iframe>
+https://www.printables.com/model/1533634-gyro-compass-heading-indicator-for-flight-simulati
+
+<img src="https://media.printables.com/media/prints/fb9f5916-4ba4-4707-9636-52089f402be2/images/11553562_0b7ecf0e-e750-4f6d-8d79-3d6e39a1d7eb_4d7c1b39-b843-4457-9c59-3ece5e0d6a6c/thumbs/inside/1280x960/jpg/20251018_173330.webp"
 
 https://www.printables.com/de/model/357184-turn-coordinator-for-flight-simulation
 
